@@ -17,20 +17,16 @@
 use std::{process::Command, time::Duration};
 use thirtyfour::prelude::{WebDriverResult, DesiredCapabilities, WebDriver};
 use tokio::time::sleep;
+use crate::passing::*;
+use crate::preparing::*;
 
-mod preparing;
-use preparing::*;
+pub struct Data {
+    pub username: String,
+    pub code: String,
+    pub source_answers_url: String
+}
 
-mod passing;
-use passing::*;
-
-mod utils;
-use utils::*;
-
-#[tokio::main]
-async fn main() -> WebDriverResult<()> {
-    let read_lines = ReadLines::new();
-
+pub async fn web_driver(data: &Data) -> WebDriverResult<()> {
     Command::new("geckodriver")
         .args(["--port", "4444"])
         .spawn()
@@ -39,9 +35,9 @@ async fn main() -> WebDriverResult<()> {
     let caps = DesiredCapabilities::firefox();
     let driver = WebDriver::new("http://localhost:4444", caps).await?;
 
-    let source_answers = fetch_source_answers(&driver, &read_lines.source_answers_url).await?;
+    let source_answers = fetch_source_answers(&driver, &data.source_answers_url).await?;
 
-    join_test(&driver, &read_lines).await?;
+    join_test(&driver, &data).await?;
     sleep(Duration::from_secs(3)).await;
 
     pass_the_test(&driver, &source_answers).await?;

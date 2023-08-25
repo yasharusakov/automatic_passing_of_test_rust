@@ -17,7 +17,7 @@
 use std::collections::HashMap;
 use thirtyfour::prelude::{WebDriverResult, WebDriver, By, ElementWaitable};
 
-use crate::utils::ReadLines;
+use crate::web_driver::Data;
 
 pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &String) -> WebDriverResult<HashMap<String, Vec<String>>> {
     driver.goto(source_answers_url).await?;
@@ -68,10 +68,10 @@ pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &Strin
     Ok(data)
 }
 
-pub async fn join_test(driver: &WebDriver, read_lines: &ReadLines) -> WebDriverResult<()> {
+pub async fn join_test(driver: &WebDriver, data: &Data) -> WebDriverResult<()> {
     driver.goto("https://naurok.com.ua/test/join").await?;
-    driver.find(By::Id("joinform-gamecode")).await?.send_keys(&read_lines.code).await?;
-    driver.find(By::Id("joinform-name")).await?.send_keys(&read_lines.username).await?;
+    driver.find(By::Id("joinform-gamecode")).await?.send_keys(&data.code).await?;
+    driver.find(By::Id("joinform-name")).await?.send_keys(&data.username).await?;
     driver.find(By::ClassName("join-button-test")).await?.click().await?;
 
     Ok(())
