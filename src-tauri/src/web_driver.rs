@@ -27,10 +27,12 @@ pub struct Data {
 }
 
 pub async fn web_driver(data: &Data) -> WebDriverResult<()> {
-    Command::new("geckodriver")
+    let mut geckodriver_process = Command::new("geckodriver")
         .args(["--port", "4444"])
         .spawn()
-        .expect("failed to execute process");
+        .expect("Failed to execute process");
+
+    sleep(Duration::from_secs(1)).await;
 
     let caps = DesiredCapabilities::firefox();
     let driver = WebDriver::new("http://localhost:4444", caps).await?;
@@ -44,6 +46,7 @@ pub async fn web_driver(data: &Data) -> WebDriverResult<()> {
     listen_current_question(&driver, &source_answers).await;
 
     driver.quit().await?;
+    geckodriver_process.kill()?;
 
     Ok(())
 }
