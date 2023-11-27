@@ -23,16 +23,18 @@ use crate::preparing::*;
 pub struct Data {
     pub username: String,
     pub code: String,
-    pub source_answers_url: String
+    pub source_answers_url: String,
 }
 
 pub async fn web_driver(data: &Data) -> WebDriverResult<()> {
-    let mut geckodriver_process = Command::new("geckodriver")
-        .args(["--port", "4444"])
-        .spawn()
-        .expect("Failed to execute process");
+    if cfg!(target_os = "linux") {
+        Command::new("geckodriver")
+            .args(["--port", "4444"])
+            .spawn()
+            .expect("Failed to execute process");
 
-    sleep(Duration::from_secs(1)).await;
+        sleep(Duration::from_secs(1)).await;
+    }
 
     let caps = DesiredCapabilities::firefox();
     let driver = WebDriver::new("http://localhost:4444", caps).await?;
@@ -46,7 +48,6 @@ pub async fn web_driver(data: &Data) -> WebDriverResult<()> {
     listen_current_question(&driver, &source_answers).await;
 
     driver.quit().await?;
-    geckodriver_process.kill()?;
 
     Ok(())
 }

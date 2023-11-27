@@ -1,10 +1,13 @@
-![Platform](https://img.shields.io/badge/platform-linux-important?style=flat-square&logo=linux&logoColor=white)
-![Code Size](https://img.shields.io/github/languages/code-size/yasharusakov/automatic_passing_of_test_rust)
-![License](https://img.shields.io/github/license/yasharusakov/automatic_passing_of_test_rust)
-
+![Language]( 	https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)
+![Language](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+![Language](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Language](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Platform](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+![Platform](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
+![Browser](https://img.shields.io/badge/Firefox_Browser-FF7139?style=for-the-badge&logo=Firefox-Browser&logoColor=white)
 # Project "automatic_passing_of_test_rust"
 
-## Requirements
+## Requirements for development
 
 To successfully compile and run the project, you must have the following installed:
 

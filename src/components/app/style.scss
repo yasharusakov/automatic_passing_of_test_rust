@@ -1,0 +1,33 @@
+form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+  gap: 10px;
+
+  input, button {
+    font-size: 16px;
+    padding: 15px;
+  }
+
+  .author-info, .made-in-rust {
+    position: fixed;
+    bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+    background: none;
+    text-decoration: underline;
+  }
+
+  .author-info {
+    right: 30px;
+  }
+
+  .made-in-rust {
+    left: 30px;
+  }
+}

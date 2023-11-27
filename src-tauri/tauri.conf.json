@@ -56,7 +56,7 @@
       {
         "fullscreen": false,
         "height": 600,
-        "resizable": true,
+        "resizable": false,
         "title": "automatic_passing_of_test_rust",
         "width": 800
       }

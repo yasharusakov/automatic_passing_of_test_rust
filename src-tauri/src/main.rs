@@ -20,27 +20,14 @@
 mod preparing;
 mod passing;
 mod web_driver;
+mod commands;
 
-use web_driver::*;
-
-#[tauri::command]
-async fn launch_web_driver(username: String, code: String, source_answers_url: String) {
-    let data = Data {
-        username,
-        code,
-        source_answers_url,
-    };
-
-    match web_driver(&data).await {
-        Ok(_) => println!("good"),
-        Err(err) => println!("{}", err)
-    }
-}
+use commands::*;
 
 #[tokio::main]
 async fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![launch_web_driver])
+        .invoke_handler(tauri::generate_handler![launch_web_driver, author_page, rust_link])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
