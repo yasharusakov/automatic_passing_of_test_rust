@@ -18,7 +18,6 @@ use std::{collections::HashMap, time::Duration};
 use thirtyfour::prelude::{WebDriverResult, WebDriver, By, WebElement};
 
 pub async fn fetch_question_and_answers(driver: &WebDriver) -> WebDriverResult<(String, Vec<String>, Vec<WebElement>)> {
-
     let is_displayed_image = match driver.find(By::Css(".question-option-image")).await {
         Ok(image) => image.is_displayed().await?,
         Err(_) => false
@@ -40,7 +39,7 @@ pub async fn fetch_question_and_answers(driver: &WebDriver) -> WebDriverResult<(
         } else {
             let paragraphs = element.find_all(By::Css("p")).await?;
             let mut answer_text = String::from("");
-            
+
             for paragraph in &paragraphs {
                 let text = paragraph.text().await?;
                 answer_text.push_str(text.trim())
@@ -49,7 +48,7 @@ pub async fn fetch_question_and_answers(driver: &WebDriver) -> WebDriverResult<(
             answers.push(answer_text)
         }
     }
-        
+
     Ok((question, answers, elements))
 }
 
@@ -75,7 +74,7 @@ pub async fn pass_the_test(driver: &WebDriver, source_answers: &HashMap<String, 
     Ok(())
 }
 
-async fn check_current_question(driver: &WebDriver, source_answers: &HashMap<String, Vec<String>>, current_question_number: &mut i32) -> WebDriverResult<()> {    
+async fn check_current_question(driver: &WebDriver, source_answers: &HashMap<String, Vec<String>>, current_question_number: &mut i32) -> WebDriverResult<()> {
     let current_question = driver.find(By::Css(".currentActiveQuestion"))
         .await?
         .text()

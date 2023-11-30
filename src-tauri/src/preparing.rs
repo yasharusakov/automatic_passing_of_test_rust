@@ -16,6 +16,7 @@
 
 use std::collections::HashMap;
 use thirtyfour::prelude::{WebDriverResult, WebDriver, By, ElementWaitable};
+use thirtyfour::WebElement;
 
 use crate::web_driver::Data;
 
@@ -43,23 +44,40 @@ pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &Strin
             Err(_) => false
         };
 
-        let answers_elements = elem.find_all(By::Css(format!(".homework-stat-question-line .homework-stat-options .homework-stat-option-line .correct {}", if is_displayed_image { "img" } else { "p" }).as_str())).await?;
+        let mut answers_images: Vec<WebElement> = vec![];
+        let mut answers_paragraphs: Vec<String> = vec![];
+
+        let classname_answers = ".homework-stat-question-line .homework-stat-options .homework-stat-option-line .correct";
+
+        if is_displayed_image {
+            answers_images = elem.find_all(By::Css(format!("{} img", classname_answers).as_str())).await?;
+        } else {
+            let elements = elem.find_all(By::Css(classname_answers)).await?;
+            for element in &elements {
+                let mut item = String::from("");
+                let paragraphs = element.find_all(By::Css("p")).await?;
+                for p in &paragraphs {
+                    let text = p
+                        .text()
+                        .await?
+                        .trim()
+                        .to_string();
+
+                    item.push_str(&text)
+                }
+                answers_paragraphs.push(item.trim().to_string())
+            }
+        }
 
         let mut answers: Vec<String> = Vec::new();
 
-        for answer_element in &answers_elements {
-            if is_displayed_image {
+        if is_displayed_image {
+            for answer_element in answers_images {
                 let answer_text = answer_element.attr("src").await?.unwrap();
                 answers.push(answer_text);
-            } else {
-                let answer_text = answer_element
-                    .text()
-                    .await?
-                    .trim()
-                    .to_string();
-
-                answers.push(answer_text);
             }
+        } else {
+            answers = answers_paragraphs;
         }
 
         data.insert(question, answers);
