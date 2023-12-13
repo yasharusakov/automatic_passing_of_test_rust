@@ -72,7 +72,7 @@ cargo tauri build
 ## Launch
 First you need to build project(see above)
 
-At `root` make file executeble: 
+At `root` make "run" file executeble in Linux: 
 ```
 sudo chmod +x run.sh
 ```
