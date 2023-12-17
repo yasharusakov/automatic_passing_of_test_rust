@@ -16,6 +16,8 @@ To successfully compile and run the project, you must have the following install
 - [Node.js](https://nodejs.org/) and npm
 - Mozilla Firefox browser
 - Geckodriver
+-   arch linux: `sudo pacman -S geckodriver --noconfirm`
+-   debian: you need to download manually and add geckogriver to `$PATH`
 
 ## Installation
 
@@ -55,16 +57,28 @@ Once the dependencies are installed and configured, you can use the Tauri CLI to
 
 At the `root` of the project:
 
-For development, use:
+Development mode, use:
 
 ```shell
 cargo tauri dev
 ```
 
-To create a final release, use:
+To compile project and gain binary file, use:
 
 ```shell
 cargo tauri build
+```
+
+## Launch
+First you need to build project(see above)
+
+At `root` make "run" file executeble in Linux: 
+```
+sudo chmod +x run.sh
+```
+To run:
+```
+./run.sh
 ```
 
 ## License
