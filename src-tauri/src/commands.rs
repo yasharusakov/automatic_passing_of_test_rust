@@ -2,7 +2,7 @@ use crate::web_driver::*;
 use webbrowser;
 
 #[tauri::command]
-pub async fn launch_web_driver(username: String, code: String, source_answers_url: String) {
+pub async fn launch_web_driver(username: &str, code: &str, source_answers_url: &str) -> Result<(), ()> {
     let data = Data {
         username,
         code,
@@ -10,21 +10,16 @@ pub async fn launch_web_driver(username: String, code: String, source_answers_ur
     };
 
     match web_driver(&data).await {
-        Ok(_) => println!("good"),
-        Err(err) => println!("{}", err)
+        Ok(_) => println!("WebDriver successfully has been launched"),
+        Err(err) => println!("Error in launch_web_driver {}", err)
     }
+
+    Ok(())
 }
 
 #[tauri::command]
 pub async fn author_page() {
     if webbrowser::open("https://github.com/yasharusakov/automatic_passing_of_test_rust").is_ok() {
-        println!("Successful redirected to https://github.com/yasharusakov/automatic_passing_of_test_rust")
-    }
-}
-
-#[tauri::command]
-pub async fn rust_link() {
-    if webbrowser::open("https://www.rust-lang.org").is_ok() {
-        println!("Successful redirected to https://www.rust-lang.org")
+        println!("Successfully redirected to https://github.com/yasharusakov/automatic_passing_of_test_rust")
     }
 }

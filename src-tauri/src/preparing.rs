@@ -1,26 +1,10 @@
-/* 
-    Copyright 2023 yasharusakov
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License. 
-*/
-
 use std::collections::HashMap;
 use thirtyfour::prelude::{WebDriverResult, WebDriver, By, ElementWaitable};
 use thirtyfour::WebElement;
 
 use crate::web_driver::Data;
 
-pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &String) -> WebDriverResult<HashMap<String, Vec<String>>> {
+pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &str) -> WebDriverResult<HashMap<String, Vec<String>>> {
     driver.goto(source_answers_url).await?;
 
     driver.find(By::Css(".homework-stats .content-block"))
@@ -86,10 +70,10 @@ pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &Strin
     Ok(data)
 }
 
-pub async fn join_test(driver: &WebDriver, data: &Data) -> WebDriverResult<()> {
+pub async fn join_test<'a >(driver: &WebDriver, data: &'a Data<'a>) -> WebDriverResult<()> {
     driver.goto("https://naurok.com.ua/test/join").await?;
-    driver.find(By::Id("joinform-gamecode")).await?.send_keys(&data.code).await?;
-    driver.find(By::Id("joinform-name")).await?.send_keys(&data.username).await?;
+    driver.find(By::Id("joinform-gamecode")).await?.send_keys(data.code).await?;
+    driver.find(By::Id("joinform-name")).await?.send_keys(data.username).await?;
     driver.find(By::ClassName("join-button-test")).await?.click().await?;
 
     Ok(())

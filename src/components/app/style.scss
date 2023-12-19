@@ -11,8 +11,9 @@ form {
     padding: 15px;
   }
 
-  .author-info, .made-in-rust {
+  .author-info {
     position: fixed;
+    right: 30px;
     bottom: 10px;
     display: flex;
     justify-content: center;
@@ -21,13 +22,5 @@ form {
     flex-wrap: nowrap;
     background: none;
     text-decoration: underline;
-  }
-
-  .author-info {
-    right: 30px;
-  }
-
-  .made-in-rust {
-    left: 30px;
   }
 }
