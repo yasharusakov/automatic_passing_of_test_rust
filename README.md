@@ -72,14 +72,18 @@ cargo tauri build
 ## Launch
 First you need to build project(see above)
 
-At `root` make "run" file executeble in Linux: 
+### Linux
+At the `root` run: 
+```shell
+sudo chmod +x intergrate.sh
+./integrate.sh
 ```
-sudo chmod +x run.sh
-```
-To run:
-```
-./run.sh
-```
+
+then open terminal and put in `apot_r` or look at your desktop, there will be Automatic Passing Of Test desktop link
+
+### Windows
+...
+
 
 ## License
 This project is licensed under the terms of the [license](LICENSE.txt).
