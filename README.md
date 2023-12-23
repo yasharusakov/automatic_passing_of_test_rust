@@ -1,4 +1,4 @@
-![Language]( 	https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)
+![Language](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)
 ![Language](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
 ![Language](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![Language](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
@@ -16,6 +16,9 @@ To successfully compile and run the project, you must have the following install
 - [Node.js](https://nodejs.org/) and npm
 - Mozilla Firefox browser
 - Geckodriver
+  - Windows: you need to download manually [geckodriver](https://github.com/mozilla/geckodriver/releases) from official mozilla releases
+  - Arch Linux: `sudo pacman -S geckodriver`
+  - Debian: you need to download manually and add geckogriver to `$PATH`
 
 ## Installation
 

@@ -6,8 +6,8 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "automatic_passing_of_test_rust",
-    "version": "0.1.0"
+    "productName": "automatic_passing_of_test",
+    "version": "1.0.0"
   },
   "tauri": {
     "allowlist": {
@@ -28,7 +28,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "automatic.passing.of.test.rust",
+      "identifier": "automatic.passing.of.test",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -57,7 +57,7 @@
         "fullscreen": false,
         "height": 600,
         "resizable": false,
-        "title": "automatic_passing_of_test_rust",
+        "title": "automatic_passing_of_test",
         "width": 800
       }
     ]
