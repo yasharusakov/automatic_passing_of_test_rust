@@ -17,18 +17,23 @@
 use std::{collections::HashMap, time::Duration};
 use thirtyfour::prelude::{WebDriverResult, WebDriver, By, WebElement};
 
+const QUESTION_SELECTOR: &str = ".test-content-text-inner > p";
+const ANSWER_OPTION_IMAGE_SELECTOR: &str = ".question-option-image";
+const ANSWER_OPTION_TEXT_SELECTOR: &str = ".question-option-inner-content";
+const MULTIQUIZ_SAVE_BUTTON_SELECTOR: &str = ".test-multiquiz-save-button";
+const MULTIQUIZ_SAVE_LINE_SPAN_SELECTOR: &str = ".test-multiquiz-save-line span";
+const CURRENT_QUESTION_SELECTOR: &str = ".currentActiveQuestion";
+const POLLING_INTERVAL: Duration = Duration::from_millis(2500);
+
 pub async fn fetch_question_and_answers(driver: &WebDriver) -> WebDriverResult<(String, Vec<String>, Vec<WebElement>)> {
-    let is_displayed_image = match driver.find(By::Css(".question-option-image")).await {
-        Ok(image) => image.is_displayed().await?,
-        Err(_) => false
-    };
+    let is_displayed_image = driver.find(By::Css(ANSWER_OPTION_IMAGE_SELECTOR)).await.is_ok();
 
-    let question = driver.find(By::Css(".test-content-text-inner > p"))
-        .await?
-        .text()
-        .await?;
+    let question = driver.find(By::Css(QUESTION_SELECTOR)).await?.text().await?;
 
-    let elements = driver.find_all(By::Css(format!("{}", if is_displayed_image { ".question-option-image" } else { ".question-option-inner-content" }).as_str())).await?;
+    let elements = driver.find_all(By::Css(match is_displayed_image {
+        true => ANSWER_OPTION_IMAGE_SELECTOR,
+        false => ANSWER_OPTION_TEXT_SELECTOR,
+    })).await?;
 
     let mut answers: Vec<String> = Vec::new();
 
@@ -55,10 +60,7 @@ pub async fn fetch_question_and_answers(driver: &WebDriver) -> WebDriverResult<(
 pub async fn pass_the_test(driver: &WebDriver, source_answers: &HashMap<String, Vec<String>>) -> WebDriverResult<()> {
     let (question, answers, elements) = fetch_question_and_answers(&driver).await?;
 
-    let is_multiquiz = match driver.find(By::Css(".test-multiquiz-save-line span")).await {
-        Ok(image) => image.is_displayed().await?,
-        Err(_) => false
-    };
+    let is_multiquiz = driver.find(By::Css(MULTIQUIZ_SAVE_LINE_SPAN_SELECTOR)).await.is_ok();
 
     for (i, item) in answers.iter().enumerate() {
         if source_answers[&question].contains(item) {
@@ -67,7 +69,7 @@ pub async fn pass_the_test(driver: &WebDriver, source_answers: &HashMap<String, 
     }
 
     if is_multiquiz {
-        let save_button = driver.find(By::Css(".test-multiquiz-save-button")).await?;
+        let save_button = driver.find(By::Css(MULTIQUIZ_SAVE_BUTTON_SELECTOR)).await?;
         save_button.click().await?;
     }
 
@@ -75,10 +77,7 @@ pub async fn pass_the_test(driver: &WebDriver, source_answers: &HashMap<String, 
 }
 
 async fn check_current_question(driver: &WebDriver, source_answers: &HashMap<String, Vec<String>>, current_question_number: &mut i32) -> WebDriverResult<()> {
-    let current_question = driver.find(By::Css(".currentActiveQuestion"))
-        .await?
-        .text()
-        .await?;
+    let current_question = driver.find(By::Css(CURRENT_QUESTION_SELECTOR)).await?.text().await?;
 
     let current_question: i32 = current_question.trim().parse().expect("Can't parse");
 
@@ -92,9 +91,8 @@ async fn check_current_question(driver: &WebDriver, source_answers: &HashMap<Str
 
 pub async fn listen_current_question(driver: &WebDriver, source_answers: &HashMap<String, Vec<String>>) {
     let mut current_question_number = 1;
-    let interval_duration = Duration::from_millis(2500);
     loop {
         let _ = check_current_question(&driver, &source_answers, &mut current_question_number).await;
-        tokio::time::sleep(interval_duration).await;
+        tokio::time::sleep(POLLING_INTERVAL).await;
     }
 }

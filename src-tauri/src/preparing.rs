@@ -20,39 +20,34 @@ use thirtyfour::WebElement;
 
 use crate::web_driver::Data;
 
+const ANSWERS_SELECTOR: &str = ".homework-stat-question-line .homework-stat-options .homework-stat-option-line .correct";
+const SOURCE_ELEMENTS_SELECTOR: &str = ".homework-stats .content-block";
+
 pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &String) -> WebDriverResult<HashMap<String, Vec<String>>> {
     driver.goto(source_answers_url).await?;
 
-    driver.find(By::Css(".homework-stats .content-block"))
+    driver.find(By::Css(SOURCE_ELEMENTS_SELECTOR))
         .await?
         .wait_until()
         .displayed()
         .await?;
 
-    let source_elements = driver.find_all(By::Css(".homework-stats .content-block")).await?;
+    let source_elements = driver.find_all(By::Css(SOURCE_ELEMENTS_SELECTOR)).await?;
 
     let mut data: HashMap<String, Vec<String>> = HashMap::new();
 
     for elem in &source_elements {
-        let question = elem.find(By::Css(".homework-stat-question-line p"))
-            .await?
-            .text()
-            .await?;
+        let question = elem.find(By::Css(".homework-stat-question-line p")).await?.text().await?;
 
-        let is_displayed_image = match elem.find(By::Css(".homework-stat-question-line .homework-stat-options .homework-stat-option-line .correct img")).await {
-            Ok(image) => image.is_displayed().await?,
-            Err(_) => false
-        };
+        let is_displayed_image = elem.find(By::Css(format!("{} img", ANSWERS_SELECTOR).as_str())).await.is_ok();
 
         let mut answers_images: Vec<WebElement> = vec![];
         let mut answers_paragraphs: Vec<String> = vec![];
 
-        let classname_answers = ".homework-stat-question-line .homework-stat-options .homework-stat-option-line .correct";
-
         if is_displayed_image {
-            answers_images = elem.find_all(By::Css(format!("{} img", classname_answers).as_str())).await?;
+            answers_images = elem.find_all(By::Css(format!("{} img", ANSWERS_SELECTOR).as_str())).await?;
         } else {
-            let elements = elem.find_all(By::Css(classname_answers)).await?;
+            let elements = elem.find_all(By::Css(ANSWERS_SELECTOR)).await?;
             for element in &elements {
                 let mut item = String::from("");
                 let paragraphs = element.find_all(By::Css("p")).await?;
