@@ -39,7 +39,7 @@ function App() {
                 value={sourceAnswersUrl} type="text"
             />
             <button type="submit">Start passing the test</button>
-            <button onClick={authorPage} className="author-info">
+            <button type="button" onClick={authorPage} className="author-info">
                 <img src={githubSvg} alt="GitHub svg" />
                 <div>yasharusakov</div>
             </button>
