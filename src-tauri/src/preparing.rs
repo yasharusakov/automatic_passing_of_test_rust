@@ -20,10 +20,34 @@ use thirtyfour::WebElement;
 
 use crate::web_driver::Data;
 
+const ORIGINAL_ANSWERS_SELECTOR: &str = ".homework-stat-question-line .homework-stat-options .homework-stat-option-line";
 const ANSWERS_SELECTOR: &str = ".homework-stat-question-line .homework-stat-options .homework-stat-option-line .correct";
 const SOURCE_ELEMENTS_SELECTOR: &str = ".homework-stats .content-block";
 
-pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &String) -> WebDriverResult<HashMap<String, Vec<String>>> {
+async fn transform_paragraphs(elem: &WebElement, selector: &str) -> WebDriverResult<Vec<String>> {
+    let elements = elem.find_all(By::Css(selector)).await?;
+
+    let mut answers_paragraphs: Vec<String> = vec![]; 
+
+    for element in &elements {
+        let mut item = String::from("");
+        let paragraphs = element.find_all(By::Css("p")).await?;
+        for p in &paragraphs {
+            let text = p
+                .text()
+                .await?
+                .trim()
+                .to_string();
+
+            item.push_str(&text)
+        }
+        answers_paragraphs.push(item.trim().to_string())
+    }
+
+    Ok(answers_paragraphs)
+}
+
+pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &String) -> WebDriverResult<HashMap<Vec<String>, Vec<String>>> {
     driver.goto(source_answers_url).await?;
 
     driver.find(By::Css(SOURCE_ELEMENTS_SELECTOR))
@@ -34,36 +58,26 @@ pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &Strin
 
     let source_elements = driver.find_all(By::Css(SOURCE_ELEMENTS_SELECTOR)).await?;
 
-    let mut data: HashMap<String, Vec<String>> = HashMap::new();
+    let mut data: HashMap<Vec<String>, Vec<String>> = HashMap::new();
 
     for elem in &source_elements {
-        let question = elem.find(By::Css(".homework-stat-question-line p")).await?.text().await?;
-
         let is_displayed_image = elem.find(By::Css(format!("{} img", ANSWERS_SELECTOR).as_str())).await.is_ok();
+
+        let mut original_answers_images: Vec<WebElement> = vec![];
+        let mut original_answers_paragraphs: Vec<String> = vec![];
 
         let mut answers_images: Vec<WebElement> = vec![];
         let mut answers_paragraphs: Vec<String> = vec![];
 
         if is_displayed_image {
+            original_answers_images = elem.find_all(By::Css(format!("{} img", ORIGINAL_ANSWERS_SELECTOR).as_str())).await?;
             answers_images = elem.find_all(By::Css(format!("{} img", ANSWERS_SELECTOR).as_str())).await?;
         } else {
-            let elements = elem.find_all(By::Css(ANSWERS_SELECTOR)).await?;
-            for element in &elements {
-                let mut item = String::from("");
-                let paragraphs = element.find_all(By::Css("p")).await?;
-                for p in &paragraphs {
-                    let text = p
-                        .text()
-                        .await?
-                        .trim()
-                        .to_string();
-
-                    item.push_str(&text)
-                }
-                answers_paragraphs.push(item.trim().to_string())
-            }
+            original_answers_paragraphs = transform_paragraphs(&elem, ORIGINAL_ANSWERS_SELECTOR).await?;
+            answers_paragraphs = transform_paragraphs(&elem, ANSWERS_SELECTOR).await?;
         }
 
+        let mut original_answers: Vec<String> = Vec::new();
         let mut answers: Vec<String> = Vec::new();
 
         if is_displayed_image {
@@ -71,11 +85,17 @@ pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &Strin
                 let answer_text = answer_element.attr("src").await?.unwrap();
                 answers.push(answer_text);
             }
+
+            for answer_element2 in original_answers_images {
+                let answer_text = answer_element2.attr("src").await?.unwrap();
+                original_answers.push(answer_text);
+            }
         } else {
             answers = answers_paragraphs;
+            original_answers = original_answers_paragraphs;
         }
-
-        data.insert(question, answers);
+        
+        data.insert(original_answers, answers);
     }
 
     Ok(data)

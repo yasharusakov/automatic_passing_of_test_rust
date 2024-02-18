@@ -57,14 +57,26 @@ pub async fn fetch_question_and_answers(driver: &WebDriver) -> WebDriverResult<(
     Ok((question, answers, elements))
 }
 
-pub async fn pass_the_test(driver: &WebDriver, source_answers: &HashMap<String, Vec<String>>) -> WebDriverResult<()> {
-    let (question, answers, elements) = fetch_question_and_answers(&driver).await?;
+pub async fn pass_the_test(driver: &WebDriver, source_answers: &HashMap<Vec<String>, Vec<String>>) -> WebDriverResult<()> {
+    let (_, answers, elements) = fetch_question_and_answers(&driver).await?;
 
     let is_multiquiz = driver.find(By::Css(MULTIQUIZ_SAVE_LINE_SPAN_SELECTOR)).await.is_ok();
 
-    for (i, item) in answers.iter().enumerate() {
-        if source_answers[&question].contains(item) {
-            elements[i].click().await?;
+
+    'outer: for (original_answers, duplicated_answers) in source_answers {
+    
+        for original_answer in original_answers {
+            if !answers.contains(original_answer) {
+                continue 'outer;
+            }
+        }
+
+        for (i, answer) in answers.iter().enumerate() {
+            for duplicated_answer in duplicated_answers {
+                if duplicated_answer == answer {
+                    elements[i].click().await?;
+                }
+            }
         }
     }
 
@@ -76,7 +88,7 @@ pub async fn pass_the_test(driver: &WebDriver, source_answers: &HashMap<String, 
     Ok(())
 }
 
-async fn check_current_question(driver: &WebDriver, source_answers: &HashMap<String, Vec<String>>, current_question_number: &mut i32) -> WebDriverResult<()> {
+async fn check_current_question(driver: &WebDriver, source_answers: &HashMap<Vec<String>, Vec<String>>, current_question_number: &mut i32) -> WebDriverResult<()> {
     let current_question = driver.find(By::Css(CURRENT_QUESTION_SELECTOR)).await?.text().await?;
 
     let current_question: i32 = current_question.trim().parse().expect("Can't parse");
@@ -89,7 +101,7 @@ async fn check_current_question(driver: &WebDriver, source_answers: &HashMap<Str
     Ok(())
 }
 
-pub async fn listen_current_question(driver: &WebDriver, source_answers: &HashMap<String, Vec<String>>) {
+pub async fn listen_current_question(driver: &WebDriver, source_answers: &HashMap<Vec<String>, Vec<String>>) {
     let mut current_question_number = 1;
     loop {
         let _ = check_current_question(&driver, &source_answers, &mut current_question_number).await;
