@@ -47,7 +47,7 @@ async fn transform_paragraphs(elem: &WebElement, selector: &str) -> WebDriverRes
     Ok(answers_paragraphs)
 }
 
-pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &String) -> WebDriverResult<HashMap<Vec<String>, Vec<String>>> {
+pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &String) -> WebDriverResult<(HashMap<String, Vec<String>>, HashMap<Vec<String>, Vec<String>>)> {
     driver.goto(source_answers_url).await?;
 
     driver.find(By::Css(SOURCE_ELEMENTS_SELECTOR))
@@ -58,9 +58,15 @@ pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &Strin
 
     let source_elements = driver.find_all(By::Css(SOURCE_ELEMENTS_SELECTOR)).await?;
 
-    let mut data: HashMap<Vec<String>, Vec<String>> = HashMap::new();
+    let mut queue_questions: Vec<String> = Vec::new();
+    let mut queue_data: HashMap<String, (Vec<String>, Vec<String>)> = HashMap::new();
+
+    let mut data: HashMap<String, Vec<String>> = HashMap::new();
+    let mut duplicated_data: HashMap<Vec<String>, Vec<String>> = HashMap::new();
 
     for elem in &source_elements {
+        let question = elem.find(By::Css(".homework-stat-question-line p")).await?.text().await?;
+
         let is_displayed_image = elem.find(By::Css(format!("{} img", ANSWERS_SELECTOR).as_str())).await.is_ok();
 
         let mut original_answers_images: Vec<WebElement> = vec![];
@@ -94,11 +100,19 @@ pub async fn fetch_source_answers(driver: &WebDriver, source_answers_url: &Strin
             answers = answers_paragraphs;
             original_answers = original_answers_paragraphs;
         }
-        
-        data.insert(original_answers, answers);
+
+        if queue_questions.contains(&question) {
+            duplicated_data.insert(original_answers.clone(), answers.clone());
+            duplicated_data.insert(queue_data[&question].0.clone(), queue_data[&question].1.clone());
+            data.remove(&question);
+        } else {
+            data.insert(question.clone(), answers.clone());
+            queue_questions.push(question.clone());
+            queue_data.insert(question, (original_answers, answers));
+        }
     }
 
-    Ok(data)
+    Ok((data, duplicated_data))
 }
 
 pub async fn join_test(driver: &WebDriver, data: &Data) -> WebDriverResult<()> {
